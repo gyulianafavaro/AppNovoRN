@@ -3,39 +3,39 @@ import React, { useEffect, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function Busca() {
-    const [usuarios, setUsuarios] = useState([]);
+    const [clientes, setClientes] = useState([]);
     const [error, setError] = useState(false);
     const [edicao, setEdicao] = useState(false);
-    const [userId, setUserId] = useState(0);
-    const [userNome, setNome] = useState();
-    const [userEmail, setEmail] = useState();
-    const [userSenha, setSenha] = useState();
+    const [clientId, setClientId] = useState(0);
+    const [clientNome, setNome] = useState();
+    const [clientEmail, setEmail] = useState();
+    const [clientGenere, setGenere] = useState();
     const [deleteResposta, setResposta] = useState(false);
 
-    async function getUsuarios() {
-        await fetch('http://10.139.75.27:5251/api/Users/GetAllUsers', {
+    async function getClients() {
+        await fetch('http://10.139.75.27:5251/api/Users/GetAllClients', {
             method: 'GET',
             headers: {
                 'content-type': 'application/json'
             }
         })
             .then(res => res.json())
-            .then(json => setUsuarios(json))
+            .then(json => setClientes(json))
             .catch(err => setError(true))
     }
 
     useEffect(() => {
-        getUsuarios();
+        getClients();
     }, []);
 
     useFocusEffect(
         React.useCallback(() => {
-            getUsuarios();
+            getClients();
         }, [])
     )
 
-    async function getUsuario(id) {
-        await fetch('http://10.139.75.27:5251/api/Users/GetUserId/' + id, {
+    async function getClients(id) {
+        await fetch('http://10.139.75.27:5251/api/Users/GetClientId/' + id, {
             method: 'GET',
             headers: {
                 'Content-type': 'aplication/json; charset=UTF-8',
@@ -43,43 +43,44 @@ export default function Busca() {
         })
             .then((response) => response.json())
             .then(json => {
-                setUserId(json.userId);
-                setNome(json.userName);
-                setEmail(json.userEmail);
-                setSenha(json.userPassword);
+                setClientId(json.clientId);
+                setNome(json.clientName);
+                setEmail(json.clientEmail);
+                setGenere(json.clientGenere);
             });
     }
-    async function editUser() {
-        await fetch('http://10.139.75.27:5251/api/Users/UpdateUser/' + userId, {
+    async function editClient() {
+        await fetch('http://10.139.75.27:5251/api/Users/UpdateClients/' + clientId, {
             method: 'PUT',
             headers: {
                 'Content-type': 'application/json; charset=UTF-8',
             },
             body: JSON.stringify({
-                userId: userId,
-                userEmail: userEmail,
-                userSenha: userSenha,
-                userName: userNome
+                clientId: clientId,
+                clientName: clientNome,
+                clientEmail: clientEmail,
+                clientGenere: clientGenere
+                
             })
         })
             .then((response) => response.json())
             .catch(err => console.log(err));
-        getUsuarios();
+        getClients();
         setEdicao(false);
     }
-    function showAlert(id, userName) {
+    function showAlert(id, clientName) {
         Alert.alert(
             '',
             'Deseja realmente excluir esse usuário ?',
             [
-                { text: 'Sim', onPress: () => deleteUsuario(id, userName) },
+                { text: 'Sim', onPress: () => deleteClient(id, clientName) },
                 { text: 'Não', onPress: () => ('') },
             ],
             { cancelable: false }
         );
     }
-    async function deleteUsuario(id, userName) {
-        await fetch('http://10.139.75.27:5251/api/Users/DeleteUser/' + id, {
+    async function deleteClient(id, clientName) {
+        await fetch('http://10.139.75.27:5251/api/Users/DeleteClients/' + id, {
             method: 'DELETE',
             headers: {
                 'Content-type': 'application/json; charset=UTF-8',
@@ -92,26 +93,26 @@ export default function Busca() {
         if (deleteResposta == true) {
             Alert.alert(
                 '',
-                'Usuário' + userName + ' excluindo com sucesso',
+                'Usuário' + clientName + ' excluindo com sucesso',
                 [
                     { text: '', onPress: () => ('') },
                     { text: 'Ok', onPress: () => ('') },
                 ],
                 { cancelable: false }
             );
-            getUsuarios();
+            getClients();
         }
         else {
             Alert.alert(
                 '',
-                'Usuário' + userName + 'não foi excluído.',
+                'Usuário' + clientName + 'não foi excluído.',
                 [
                     { text: '', onPress: () => ('') },
                     { text: 'Ok', onPress: () => ('') },
                 ],
                 { cancelable: false }
             );
-            getUsuarios();
+            getClients();
         }
     };
     return (
@@ -119,17 +120,17 @@ export default function Busca() {
             {edicao == false ?
                 <FlatList
                     style={css.flat}
-                    data={usuarios}
-                    keyExtractor={(item) => item.userId}
+                    data={clientes}
+                    keyExtractor={(item) => item.clientId}
                     renderItem={({ item }) => (
                         <View style={css.itemContainer}>
                             <Text style={css.text}>
-                                {item.userName}
+                                {item.clientName}
                             </Text>
-                            <TouchableOpacity style={css.btnEdit} onPress={() => { setEdicao(true); getUsuario(item.userId) }}>
+                            <TouchableOpacity style={css.btnEdit} onPress={() => { setEdicao(true); getUsuario(item.clientId) }}>
                                 <Text style={css.btnText}>EDITAR</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={css.btnDelete} onPress={() => showAlert(item.userId, item.userName)}>
+                            <TouchableOpacity style={css.btnDelete} onPress={() => showAlert(item.clientId, item.clientName)}>
                                 <Text style={css.btnText}>EXCLUIR</Text>
                             </TouchableOpacity>
                         </View>

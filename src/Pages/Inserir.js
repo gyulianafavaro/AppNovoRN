@@ -8,41 +8,28 @@ export default function Inserir() {
   const [nome, setNome] = useState("");
   const [sobrenome, setSobrenome] = useState("");
   const [email, setEmail] = useState("");
-  const [usuario, setUsuario] = useState("");
-  const [senha, setSenha] = useState("");
-  const [rua, setRua] = useState("");
-  const [numero, setNumero] = useState("");
-  const [cidade, setCidade] = useState("");
-  const [cep, setCep] = useState("");
-  const [telefone, setTelefone] = useState("");
+  const [client, setClients] = useState("");
+  const [genere, setGenere] = useState("");
+
+
   const [erro, setErro] = useState(false);
   const [sucesso, setSucesso] = useState(false);
 
   async function Cadastro() {
-    await fetch('https://fakestoreapi.com/users', {
+    await fetch('https://fakestoreapi.com/Clients', {
       method: 'POST',
       headers: {
         'content-type': 'application/json'
       },
       body: JSON.stringify({
-        email: email,
-        username: usuario,
-        password: senha,
-        name: {
+
+        clientname: {
           firstname: nome,
           lastname: sobrenome
         },
-        address: {
-          city: cidade,
-          street: rua,
-          number: numero,
-          zipcode: cep,
-          geolocation: {
-            lat: '-37.3159',
-            long: '81.1496'
-          }
-        },
-        phone: telefone
+        clientemail: email,
+
+        clientgenere: genere,
       })
     })
       .then(res => (res.ok == true) ? res.json() : false)
@@ -62,14 +49,8 @@ export default function Inserir() {
           <TextInput placeholder='Nome' style={css.input} placeholderTextColor={"white"}></TextInput>
           <TextInput placeholder='Sobrenome' style={css.input} placeholderTextColor={"white"}></TextInput>
           <TextInput placeholder='Email' style={css.input} placeholderTextColor={"white"}></TextInput>
-          <TextInput placeholder='Usuario' style={css.input} placeholderTextColor={"white"}></TextInput>
-          <TextInput placeholder='Senha' style={css.input} placeholderTextColor={"white"}></TextInput>
-          <TextInput placeholder='Rua' style={css.input} placeholderTextColor={"white"}></TextInput>
-          <TextInput placeholder='Numero' style={css.input} keyboardType="numeric" placeholderTextColor={"white"}></TextInput>
-          <TextInput placeholder='Cidade' style={css.input} placeholderTextColor={"white"}></TextInput>
-          <TextInput placeholder='Cep' style={css.input} keyboardType="numeric" placeholderTextColor={"white"}></TextInput>
-          <TextInput placeholder='Telefone' style={css.input} keyboardType="numeric" placeholderTextColor={"white"}></TextInput>
-
+          <TextInput placeholder='Genero' style={css.input} placeholderTextColor={"white"}></TextInput>
+          
           <TouchableOpacity style={css.btnCadastrar} onPress={Cadastro}>
             <Text style={css.btnCadastrarText}>CADASTRAR</Text>
           </TouchableOpacity>
@@ -103,7 +84,7 @@ const css = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     color: "white",
-    marginTop:35
+    marginTop: 35
   },
   btnCadastrar: {
     backgroundColor: "#FF66C4",
@@ -113,7 +94,7 @@ const css = StyleSheet.create({
     color: "white",
     justifyContent: "center",
     alignItems: "center",
-    marginTop:15
+    marginTop: 15
   },
   btnCadastrarText: {
     color: "#fff",
