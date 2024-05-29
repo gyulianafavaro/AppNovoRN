@@ -1,72 +1,210 @@
-import { View, Text, TextInput, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, StyleSheet, FlatList, ActivityIndicator,TouchableOpacity,Alert  } from 'react-native';
 import React, { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function Busca() {
-    const [usuarios, setUsuarios ] = useState( [] );
-    const [error, setError ] = useState(false);
-    const [busca, setBusca] = useState(false);
-    const [filtro, setFiltro ] = useState(false);
+    const [usuarios, setUsuarios] = useState([]);
+    const [error, setError] = useState(false);
+    const [edicao, setEdicao] = useState(false);
+    const [userId, setUserId] = useState(0);
+    const [userNome, setNome] = useState();
+    const [userEmail, setEmail] = useState();
+    const [userSenha, setSenha] = useState();
+    const [deleteResposta, setResposta] = useState(false);
 
-    async function getUsuarios()
-    {
-        await fetch('https://fakestoreapi.com/users', {
+    async function getUsuarios() {
+        await fetch('http://10.139.75.27:5251/api/Users/GetAllUsers', {
             method: 'GET',
             headers: {
-              'content-type': 'application/json'
+                'content-type': 'application/json'
             }
-          })
-            .then( res => ( res.ok == true ) ? res.json() : false )
-            .then( json => setUsuarios( json ) )
-            .catch( err => setError( true ) )
+        })
+            .then(res => res.json())
+            .then(json => setUsuarios(json))
+            .catch(err => setError(true))
     }
 
-    useEffect( () => {
+    useEffect(() => {
         getUsuarios();
-    }, [] );
+    }, []);
 
-    useEffect( () => {
-        setFiltro( usuarios.filter( (item) => item.name.firstname == busca )[0] );
-    }, [busca] );
+    useFocusEffect(
+        React.useCallback(() => {
+            getUsuarios();
+        }, [])
+    )
 
+    async function getUsuario(id) {
+        await fetch('http://10.139.75.27:5251/api/Users/GetUserId/' + id, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'aplication/json; charset=UTF-8',
+            },
+        })
+            .then((response) => response.json())
+            .then(json => {
+                setUserId(json.userId);
+                setNome(json.userName);
+                setEmail(json.userEmail);
+                setSenha(json.userPassword);
+            });
+    }
+    async function editUser() {
+        await fetch('http://10.139.75.27:5251/api/Users/UpdateUser/' + userId, {
+            method: 'PUT',
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+            body: JSON.stringify({
+                userId: userId,
+                userEmail: userEmail,
+                userSenha: userSenha,
+                userName: userNome
+            })
+        })
+            .then((response) => response.json())
+            .catch(err => console.log(err));
+        getUsuarios();
+        setEdicao(false);
+    }
+    function showAlert(id, userName) {
+        Alert.alert(
+            '',
+            'Deseja realmente excluir esse usuário ?',
+            [
+                { text: 'Sim', onPress: () => deleteUsuario(id, userName) },
+                { text: 'Não', onPress: () => ('') },
+            ],
+            { cancelable: false }
+        );
+    }
+    async function deleteUsuario(id, userName) {
+        await fetch('http://10.139.75.27:5251/api/Users/DeleteUser/' + id, {
+            method: 'DELETE',
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+        })
+            .then(res => res.json())
+            .then(json => setResposta(json))
+            .catch(err => setError(true))
+
+        if (deleteResposta == true) {
+            Alert.alert(
+                '',
+                'Usuário' + userName + ' excluindo com sucesso',
+                [
+                    { text: '', onPress: () => ('') },
+                    { text: 'Ok', onPress: () => ('') },
+                ],
+                { cancelable: false }
+            );
+            getUsuarios();
+        }
+        else {
+            Alert.alert(
+                '',
+                'Usuário' + userName + 'não foi excluído.',
+                [
+                    { text: '', onPress: () => ('') },
+                    { text: 'Ok', onPress: () => ('') },
+                ],
+                { cancelable: false }
+            );
+            getUsuarios();
+        }
+    };
     return (
         <View style={css.container}>
-            <View style={css.searchBox}>
-                <TextInput
-                    style={css.search}
-                    placeholder="Buscar usuarios"
-                    placeholderTextColor="white"
-                    TextInput={busca}
-                    onChangeText={(digitado) => setBusca( digitado ) }
+            {edicao == false ?
+                <FlatList
+                    style={css.flat}
+                    data={usuarios}
+                    keyExtractor={(item) => item.userId}
+                    renderItem={({ item }) => (
+                        <View style={css.itemContainer}>
+                            <Text style={css.text}>
+                                {item.userName}
+                            </Text>
+                            <TouchableOpacity style={css.btnEdit} onPress={() => { setEdicao(true); getUsuario(item.userId) }}>
+                                <Text style={css.btnText}>EDITAR</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={css.btnDelete} onPress={() => showAlert(item.userId, item.userName)}>
+                                <Text style={css.btnText}>EXCLUIR</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
                 />
-            </View>
-            { filtro && <Text style={css.text}>{filtro.name.firstname} {filtro.name.lastname}</Text> }
-            { ( !filtro && busca ) && <ActivityIndicator size="large" color="white" /> }
+                :
+                <View style={css.editar}>
+                    <TextInput
+                        inputMode="text"
+                        style={css.input}
+                        value={userNome}
+                        onChangeText={(digitado) => setNome(digitado)}
+                        placeholder="white"
+                    />
+                    <TextInput
+                        inputMode="email"
+                        style={css.input}
+                        value={userEmail}
+                        onChangeText={(digitado) => setEmail(digitado)}
+                        placeholder="white"
+                    />
+                    <TextInput
+                        inputMode="text"
+                        secureTextEntry={true}
+                        style={css.input}
+                        value={userSenha}
+                        onChangeText={(digitado) => setSenha(digitado)}
+                        placeholder="white"
+                    />
+                    <TouchableOpacity style={css.btnCreate} onPress={() => editUser()}>
+                        <Text style={css.btnLoginText}>SALVAR</Text>
+                    </TouchableOpacity>
+                </View>
+            }
         </View>
     )
 }
+
 const css = StyleSheet.create({
     container: {
-        flexGrow: 1,
-        width: "100%",
-        alignItems: "center",
-        backgroundColor: "#191919",
+        width: "90%",
+        padding: 20,
+        marginBottom: 20,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        marginLeft: 20,
+        elevation: 10,
+        marginTop: 50
+    },
+    flat: {
+        // Estilos da FlatList, se necessário
+    },
+    itemContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 10,
     },
     text: {
-        color: "white"
+        // Estilos para o texto do item, se necessário
     },
-    searchBox: {
-        width: "100%",
-        height: 100,
-        justifyContent: "flex-end",
-        alignItems: "center",
+    btnEdit: {
+        backgroundColor: '#FAA3D9',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 5,
     },
-    search: {
-        width: "96%",
-        height: 60,
-        borderWidth: 1,
-        borderColor: "white",
-        borderRadius: 8,
-        padding: 10,
-        color: "white"
-    }
-})
+    btnDelete: {
+        backgroundColor: '#FF66C4',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 5,
+    },
+    btnText: {
+        color: 'white',
+        fontWeight: 'bold',
+    },
+});

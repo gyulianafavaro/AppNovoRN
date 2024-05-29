@@ -1,107 +1,97 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native'
-import React, { useContext, useState } from 'react'
+import React, { useState, useContext } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ScrollView, } from 'react-native';
 import { AuthContext } from '../Context/AuthContext';
 
-export default function Login() {
 
+export default function Login() {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
 
     const { Login, error } = useContext(AuthContext);
 
-    function RealizaLogin() {
-       Login( email, senha );
+    function realizalogin() {
+        Login(email, senha);
     }
 
 
+
+
     return (
-        <ScrollView contentContainerStyle={css.container}>
-            <Image source={require("../../assets/logo.png")} style={css.logo} />
-            <TextInput
-                inputMode="email"
-                placeholder="Email"
-                style={css.input}
-                value={email}
-                onChangeText={(digitado) => setEmail(digitado)}
-                placeholderTextColor="white"
-            />
-            <TextInput
-                inputMode="text"
-                placeholder="Password"
-                secureTextEntry={true}
-                style={css.input}
-                value={senha}
-                onChangeText={(digitado) => setSenha(digitado)}
-                placeholderTextColor="white"
-            />
-            <View style={css.forgot}>
-                <Text style={css.forgotText}>Esqueceu a senha?</Text>
+        <ScrollView contentContainerStyle={css.tudo}>
+            <Image style={css.imagem} source={require('../../assets/Logotipo.png')}></Image>
+            <View><Text style={css.texto}>Entre ou faça o cadastro</Text></View>
+            <View style={css.caixa}>
+                <TextInput style={css.input} placeholder="E-mail" value={email} onChangeText={(digitado) => setEmail(digitado)} />
+                <TextInput style={css.input} placeholder="Senha" secureTextEntry={true} value={senha} onChangeText={(digitado) => setSenha(digitado)} />
+                <TouchableOpacity style={css.btn} onPress={realizalogin}>
+                    <Text style={css.btnText}>ENTRAR</Text>
+                </TouchableOpacity>
             </View>
-            <TouchableOpacity style={css.btnLogin} onPress={RealizaLogin}>
-                <Text style={css.btnLoginText}>Log In</Text>
-            </TouchableOpacity>
             {error &&
                 <View style={css.error}>
-                    <Text style={css.errorText}>Revise os campos. Tente novamente!</Text>
+                    <Text style={css.errorText}>Revise os campos. Tente novamente</Text>
                 </View>
             }
         </ScrollView>
     )
 }
 const css = StyleSheet.create({
-    container: {
-        flexGrow: 1,
-        width: "100%",
-        justifyContent: "center",
-        alignItems: "center",
-        alignContent: "center",
-        backgroundColor: "#191919"
-    },
-    logo: {
-        width: "60%",
-        resizeMode: "contain"
-    },
     input: {
-        width: "90%",
-        height: 50,
-        borderRadius: 10,
-        marginBottom: 15,
-        padding: 15,
-        backgroundColor: "#262626",
-        color: "white"
+        width: "83%",
+        height: 40,
+        marginBottom: 5,
+        marginLeft: '8%',
+        borderRadius: 6,
+        padding: 8,
+        marginTop: 25,
+        borderWidth: 2,
+        fontSize: 15,
+        borderColor: '#DEDEDE',
+        color: '#7C7C7C'
     },
-    forgot: {
-        width: "90%",
-        marginTop: 10,
-        justifyContent: "flex-end",
-        alignItems: "flex-end",
+    btn: {
+        width: "83%",
+        marginTop: 20,
+        marginLeft: '8%',
+        height: 45,
+        backgroundColor: '#FF66C4',
+        borderRadius: 5,
+        color: 'white'
     },
-    forgotText: {
-        color: "#0195fd",
-        fontWeight: "bold"
+    tudo: {
+        backgroundColor: 'white',
+        flexGrow: 1
     },
-    btnLogin: {
-        width: "90%",
-        height: 50,
-        borderWidth: 1,
-        borderRadius: 10,
-        marginTop: 30,
-        backgroundColor: "#0195fd"
-    },
-    btnLoginText: {
-        color: "white",
-        lineHeight: 45,
-        textAlign: "center",
+    btnText: {
+        color: '#fff',
+        textAlign: 'center',
+        lineHeight: 37,
         fontSize: 15,
         fontWeight: "bold"
     },
-    error: {
-        width: "100%",
-        height: 50,
-        marginTop: 30
+    caixa: {
+        width: '80%',
+        height: '28%',
+        borderRadius: 7,
+        marginLeft: '10%',
+        marginTop: '5%',
+        backgroundColor: '#F2F2F2'
     },
-    errorText: {
-        color: "white",
-        textAlign: "center"
+    imagem: {
+        width: 150,
+        height: 150,
+        resizeMode: 'contain',
+        marginLeft: '31%',
+        marginTop: '25%'
+    },
+    texto: {
+        marginLeft: '23%',
+        marginTop: '20%',
+        fontWeight: "bold",
+        color: "#E04082",
+        fontSize: 20
+    },
+    cadastro: {
+        marginLeft: '22%'
     }
 });
